@@ -1,6 +1,7 @@
 package com.horizonai.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.horizonai.ai.observer.ContentEvent;
 import com.horizonai.ai.strategy.AnalysisContext;
 import com.horizonai.ai.strategy.AnalysisResult;
 import com.horizonai.common.BusinessException;
@@ -12,6 +13,7 @@ import com.horizonai.service.AiAnalysisService;
 import com.horizonai.vo.AiAnalysisVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,7 @@ public class AiAnalysisServiceImpl implements AiAnalysisService {
     private final ArticleMapper articleMapper;
     private final AiAnalysisResultMapper aiAnalysisResultMapper;
     private final AnalysisContext analysisContext;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -53,6 +56,9 @@ public class AiAnalysisServiceImpl implements AiAnalysisService {
         article.setImportanceRating(result.getImportanceRating());
         article.setSummary(result.getSummary());
         articleMapper.updateById(article);
+
+        // 发布内容分析完成事件（观察者模式）
+        eventPublisher.publishEvent(new ContentEvent(this, article, entity));
 
         return buildVO(entity, article.getTitle());
     }

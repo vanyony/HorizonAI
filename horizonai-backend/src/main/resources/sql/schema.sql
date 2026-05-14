@@ -115,3 +115,15 @@ CREATE TABLE IF NOT EXISTS daily_digests (
   article_ids VARCHAR(1000) DEFAULT NULL COMMENT '关联文章 ID 列表 (JSON 数组)',
   created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '生成时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='每日摘要表';
+
+-- =============================================
+-- 9. 浏览历史表
+-- =============================================
+CREATE TABLE IF NOT EXISTS browse_history (
+  id         BIGINT   AUTO_INCREMENT PRIMARY KEY,
+  user_id    BIGINT   NOT NULL COMMENT '用户 ID',
+  article_id BIGINT   NOT NULL COMMENT '文章 ID',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '浏览时间',
+  UNIQUE KEY uk_user_article (user_id, article_id),
+  INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='浏览历史表';

@@ -33,7 +33,7 @@ public class SecurityConfig {
             .and()
             .authorizeRequests()
             .antMatchers("/api/auth/login", "/api/auth/register").permitAll()
-            .antMatchers("/api/homepage/**").permitAll()
+            .antMatchers("/api/homepage/**", "/api/digests/**").permitAll()
             .antMatchers("/api/tags").permitAll()
             .antMatchers("/api/articles", "/api/articles/*", "/api/articles/*/analysis").permitAll()
             .antMatchers("/api/admin/**").hasRole("ADMIN")

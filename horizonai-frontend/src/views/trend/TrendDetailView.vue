@@ -69,6 +69,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ArrowLeft, MagicStick, Link } from '@element-plus/icons-vue'
 import { getPublicArticle } from '@/api/article'
+import { recordBrowse } from '@/api/user'
 import { SOURCE_TYPE_LABELS } from '@/utils/constants'
 import request from '@/utils/request'
 
@@ -93,6 +94,7 @@ onMounted(async () => {
     ])
     if (articleRes.status === 'fulfilled') {
       article.value = articleRes.value.data
+      recordBrowse(id).catch(() => {}) // 静默记录浏览
     }
     if (analysisRes.status === 'fulfilled' && analysisRes.value.data) {
       analysis.value = analysisRes.value.data
