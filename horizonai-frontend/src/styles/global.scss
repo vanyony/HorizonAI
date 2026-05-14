@@ -1,0 +1,101 @@
+// ==========================================
+// HorizonAI 全局样式 — 暗色科技风（科技青 #00BCD4）
+// ==========================================
+
+// Element Plus 暗黑模式 CSS 变量覆盖
+@mixin dark-theme-overrides {
+  // 主色调 — 科技青
+  --el-color-primary: #00BCD4;
+  --el-color-primary-light-3: #33c9dd;
+  --el-color-primary-light-5: #66d7e5;
+  --el-color-primary-light-7: #99e5ee;
+  --el-color-primary-light-8: #b3ecf2;
+  --el-color-primary-light-9: #ccf2f6;
+  --el-color-primary-dark-2: #0096aa;
+
+  // 成功/警告/危险色保持 Element Plus 默认
+  --el-color-success: #67C23A;
+  --el-color-warning: #E6A23C;
+  --el-color-danger: #F56C6C;
+
+  // 背景色层次
+  --el-bg-color: #141414;
+  --el-bg-color-page: #0a0a0a;
+  --el-bg-color-overlay: #1d1d1d;
+
+  // 文字色
+  --el-text-color-primary: #e5e5e5;
+  --el-text-color-regular: #d0d0d0;
+  --el-text-color-secondary: #a0a0a0;
+  --el-text-color-placeholder: #666;
+  --el-text-color-disabled: #555;
+
+  // 边框色
+  --el-border-color: #333;
+  --el-border-color-light: #2a2a2a;
+  --el-border-color-lighter: #222;
+  --el-border-color-extra-light: #1a1a1a;
+
+  // 填充色
+  --el-fill-color: #1d1d1d;
+  --el-fill-color-light: #242424;
+  --el-fill-color-lighter: #2a2a2a;
+  --el-fill-color-blank: #141414;
+}
+
+// 挂载到 html.dark 下
+html.dark {
+  @include dark-theme-overrides;
+}
+
+// 全局 HTML 强制暗色
+html {
+  @include dark-theme-overrides;
+}
+
+// ==========================================
+// 全局样式
+// ==========================================
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+  background-color: var(--el-bg-color-page);
+  color: var(--el-text-color-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// 链接色
+a {
+  color: var(--el-color-primary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--el-color-primary-light-3);
+  }
+}
+
+// 滚动条美化（Webkit）
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--el-bg-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+
+  &:hover {
+    background: #555;
+  }
+}
