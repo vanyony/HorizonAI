@@ -33,6 +33,9 @@ desktop.ini
 application-local.yml
 application-local.properties
 
+# === MySQL ===
+mysql/
+
 # === AI Interaction Records ===
 # These are deliverables, so track them
 # ai-records/ is intentionally NOT ignored
