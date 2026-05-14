@@ -3,6 +3,7 @@ package com.horizonai.config;
 import com.horizonai.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,8 +23,6 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
-
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
@@ -36,11 +35,18 @@ public class SecurityConfig {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
+            // CORS 预检请求全部放行
+            .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            // 认证接口
             .antMatchers("/api/auth/login", "/api/auth/register").permitAll()
+            // 公开浏览接口
             .antMatchers("/api/homepage/**", "/api/digests/**").permitAll()
             .antMatchers("/api/tags").permitAll()
-            .antMatchers("/api/articles", "/api/articles/*", "/api/articles/*/analysis").permitAll()
+            // /api/articles 所有子路径放行
+            .antMatchers("/api/articles", "/api/articles/**").permitAll()
+            // 管理后台需要 ADMIN 角色
             .antMatchers("/api/admin/**").hasRole("ADMIN")
+            // 其余接口需要登录
             .anyRequest().authenticated()
             .and()
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
