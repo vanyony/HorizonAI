@@ -54,16 +54,10 @@
           />
         </el-form-item>
 
-        <el-form-item label="技术兴趣（可多选）" prop="interests">
-          <el-checkbox-group v-model="form.interests" class="interest-group">
-            <el-checkbox
-              v-for="tag in techTags"
-              :key="tag"
-              :label="tag"
-              :value="tag"
-              border
-            >
-              {{ tag }}
+        <el-form-item label="技术兴趣（可多选）">
+          <el-checkbox-group v-model="form.interestTagIds" class="interest-group">
+            <el-checkbox v-for="t in tagList" :key="t.id" :label="t.id" border>
+              {{ t.name }}
             </el-checkbox>
           </el-checkbox-group>
         </el-form-item>
@@ -90,23 +84,23 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { register } from '@/api/auth'
+import { getTags } from '@/api/tag'
 
+const router = useRouter()
 const formRef = ref(null)
 const loading = ref(false)
-
-const techTags = [
-  '人工智能', '前端开发', '后端开发', '云原生',
-  '安全技术', '数据科学', '移动开发', '开源项目'
-]
+const tagList = ref([])
 
 const form = reactive({
   username: '',
   password: '',
   confirmPassword: '',
   email: '',
-  interests: []
+  interestTagIds: []
 })
 
 const validateConfirmPassword = (_rule, value, callback) => {
@@ -135,15 +129,30 @@ const rules = {
   ]
 }
 
-function handleRegister() {
-  formRef.value?.validate(valid => {
-    if (!valid) return
-    loading.value = true
-    setTimeout(() => {
-      loading.value = false
-      ElMessage.info('注册功能将在 Phase 2 实现')
-    }, 800)
-  })
+onMounted(async () => {
+  const res = await getTags()
+  tagList.value = res.data || []
+})
+
+async function handleRegister() {
+  const valid = await formRef.value.validate().catch(() => false)
+  if (!valid) return
+
+  loading.value = true
+  try {
+    await register({
+      username: form.username,
+      password: form.password,
+      email: form.email || undefined,
+      interestTagIds: form.interestTagIds
+    })
+    ElMessage.success('注册成功，请登录')
+    router.push('/login')
+  } catch {
+    // 错误已由 request 拦截器统一提示
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -200,12 +209,6 @@ function handleRegister() {
 
   .el-checkbox {
     margin-right: 0;
-
-    &.is-checked {
-      .el-checkbox__label {
-        color: var(--el-color-primary);
-      }
-    }
   }
 }
 

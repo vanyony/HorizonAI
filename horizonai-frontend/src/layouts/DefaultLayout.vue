@@ -37,6 +37,9 @@
                 <el-dropdown-item command="interests">
                   <router-link to="/interests">兴趣管理</router-link>
                 </el-dropdown-item>
+                <el-dropdown-item v-if="isAdmin" command="admin" divided>
+                  <router-link to="/admin/articles">后台管理</router-link>
+                </el-dropdown-item>
                 <el-dropdown-item divided command="logout" @click="handleLogout">
                   退出登录
                 </el-dropdown-item>
@@ -77,6 +80,7 @@ const router = useRouter()
 
 const isLoggedIn = computed(() => !!localStorage.getItem('token'))
 const username = computed(() => localStorage.getItem('username') || '用户')
+const isAdmin = computed(() => localStorage.getItem('role') === 'ADMIN')
 
 const activeMenu = computed(() => {
   const path = route.path

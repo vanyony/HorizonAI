@@ -58,8 +58,12 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { login } from '@/api/auth'
 
+const router = useRouter()
+const route = useRoute()
 const formRef = ref(null)
 const loading = ref(false)
 
@@ -79,15 +83,25 @@ const rules = {
   ]
 }
 
-function handleLogin() {
-  formRef.value?.validate(valid => {
-    if (!valid) return
-    loading.value = true
-    setTimeout(() => {
-      loading.value = false
-      ElMessage.info('登录功能将在 Phase 2 实现')
-    }, 800)
-  })
+async function handleLogin() {
+  const valid = await formRef.value.validate().catch(() => false)
+  if (!valid) return
+
+  loading.value = true
+  try {
+    const res = await login(form)
+    const { token, username, role } = res.data
+    localStorage.setItem('token', token)
+    localStorage.setItem('username', username)
+    localStorage.setItem('role', role)
+    ElMessage.success(`欢迎回来，${username}`)
+    const redirect = route.query.redirect || '/'
+    router.push(redirect)
+  } catch {
+    // 错误已由 request 拦截器统一提示
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
