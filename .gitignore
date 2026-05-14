@@ -1,0 +1,38 @@
+# Gitignore for HorizonAI
+
+# === Java / Spring Boot ===
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+*.jar
+*.war
+*.log
+.idea/
+*.iml
+.settings/
+.project
+.classpath
+.vscode/
+*.swp
+*.swo
+
+# === Node / Vue ===
+node_modules/
+dist/
+.env.local
+.env.*.local
+*.tsbuildinfo
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Environment ===
+.env
+application-local.yml
+application-local.properties
+
+# === AI Interaction Records ===
+# These are deliverables, so track them
+# ai-records/ is intentionally NOT ignored
