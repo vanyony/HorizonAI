@@ -13,7 +13,6 @@ import com.horizonai.mapper.TagMapper;
 import com.horizonai.service.ArticleService;
 import com.horizonai.vo.ArticleVO;
 import com.horizonai.vo.TagVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -24,12 +23,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleMapper articleMapper;
     private final ArticleTagMapper articleTagMapper;
     private final TagMapper tagMapper;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public ArticleServiceImpl(ArticleMapper articleMapper,
+                              ArticleTagMapper articleTagMapper,
+                              TagMapper tagMapper) {
+        this.articleMapper = articleMapper;
+        this.articleTagMapper = articleTagMapper;
+        this.tagMapper = tagMapper;
+    }
 
     @Override
     public Page<ArticleVO> page(Integer pageNum, Integer pageSize, String sourceType, Long tagId) {

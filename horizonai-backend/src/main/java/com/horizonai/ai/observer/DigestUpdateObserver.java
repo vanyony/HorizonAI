@@ -8,8 +8,8 @@ import com.horizonai.mapper.DailyDigestMapper;
 import com.horizonai.ai.factory.AiModelClient;
 import com.horizonai.ai.factory.AiModelFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -21,15 +21,27 @@ import java.util.stream.Collectors;
 /**
  * 每日摘要更新观察者 — 当新内容分析完成后，判断是否需要更新今日摘要
  */
-@Slf4j
 @Component
-@RequiredArgsConstructor
 public class DigestUpdateObserver implements ContentObserver {
+
+    private static final Logger log = LoggerFactory.getLogger(DigestUpdateObserver.class);
 
     private final DailyDigestMapper dailyDigestMapper;
     private final ArticleMapper articleMapper;
     private final AiModelFactory aiModelFactory;
     private final ObjectMapper objectMapper;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public DigestUpdateObserver(DailyDigestMapper dailyDigestMapper,
+                                ArticleMapper articleMapper,
+                                AiModelFactory aiModelFactory,
+                                ObjectMapper objectMapper) {
+        this.dailyDigestMapper = dailyDigestMapper;
+        this.articleMapper = articleMapper;
+        this.aiModelFactory = aiModelFactory;
+        this.objectMapper = objectMapper;
+    }
 
     @Override
     @Async

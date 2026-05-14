@@ -2,7 +2,8 @@ package com.horizonai.ai.factory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -11,8 +12,9 @@ import java.util.*;
 /**
  * DeepSeek API 客户端（OpenAI 兼容接口）
  */
-@Slf4j
 public class DeepSeekClient implements AiModelClient {
+
+    private static final Logger log = LoggerFactory.getLogger(DeepSeekClient.class);
 
     private final String apiKey;
     private final String baseUrl;

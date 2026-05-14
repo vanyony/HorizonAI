@@ -7,7 +7,6 @@ import com.horizonai.service.AiAnalysisService;
 import com.horizonai.service.ArticleService;
 import com.horizonai.vo.AiAnalysisVO;
 import com.horizonai.vo.ArticleVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -17,11 +16,17 @@ import javax.validation.Valid;
  */
 @RestController
 @RequestMapping("/api/admin")
-@RequiredArgsConstructor
 public class AdminController {
 
     private final ArticleService articleService;
     private final AiAnalysisService aiAnalysisService;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public AdminController(ArticleService articleService, AiAnalysisService aiAnalysisService) {
+        this.articleService = articleService;
+        this.aiAnalysisService = aiAnalysisService;
+    }
 
     // ========== 文章管理 ==========
 

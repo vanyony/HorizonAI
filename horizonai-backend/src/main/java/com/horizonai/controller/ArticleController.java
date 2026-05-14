@@ -6,16 +6,21 @@ import com.horizonai.service.AiAnalysisService;
 import com.horizonai.service.ArticleService;
 import com.horizonai.vo.AiAnalysisVO;
 import com.horizonai.vo.ArticleVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/articles")
-@RequiredArgsConstructor
 public class ArticleController {
 
     private final ArticleService articleService;
     private final AiAnalysisService aiAnalysisService;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public ArticleController(ArticleService articleService, AiAnalysisService aiAnalysisService) {
+        this.articleService = articleService;
+        this.aiAnalysisService = aiAnalysisService;
+    }
 
     @GetMapping
     public Result<Page<ArticleVO>> list(

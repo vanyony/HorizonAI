@@ -8,7 +8,6 @@ import com.horizonai.service.UserService;
 import com.horizonai.vo.BrowseHistoryVO;
 import com.horizonai.vo.TagVO;
 import com.horizonai.vo.UserVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +17,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
@@ -26,6 +24,20 @@ public class UserServiceImpl implements UserService {
     private final BrowseHistoryMapper browseHistoryMapper;
     private final TagMapper tagMapper;
     private final ArticleMapper articleMapper;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public UserServiceImpl(UserMapper userMapper,
+                           UserInterestMapper userInterestMapper,
+                           BrowseHistoryMapper browseHistoryMapper,
+                           TagMapper tagMapper,
+                           ArticleMapper articleMapper) {
+        this.userMapper = userMapper;
+        this.userInterestMapper = userInterestMapper;
+        this.browseHistoryMapper = browseHistoryMapper;
+        this.tagMapper = tagMapper;
+        this.articleMapper = articleMapper;
+    }
 
     @Override
     public UserVO getProfile(Long userId) {

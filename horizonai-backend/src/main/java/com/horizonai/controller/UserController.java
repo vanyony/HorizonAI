@@ -5,7 +5,6 @@ import com.horizonai.service.UserService;
 import com.horizonai.vo.BrowseHistoryVO;
 import com.horizonai.vo.TagVO;
 import com.horizonai.vo.UserVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,10 +13,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
-@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/profile")
     public Result<UserVO> profile(Authentication authentication) {

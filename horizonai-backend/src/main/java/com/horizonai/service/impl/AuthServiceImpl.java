@@ -13,19 +13,29 @@ import com.horizonai.security.JwtTokenProvider;
 import com.horizonai.service.AuthService;
 import com.horizonai.vo.LoginVO;
 import com.horizonai.vo.UserVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
     private final UserMapper userMapper;
     private final UserInterestMapper userInterestMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public AuthServiceImpl(UserMapper userMapper,
+                           UserInterestMapper userInterestMapper,
+                           PasswordEncoder passwordEncoder,
+                           JwtTokenProvider jwtTokenProvider) {
+        this.userMapper = userMapper;
+        this.userInterestMapper = userInterestMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
 
     @Override
     public Result<LoginVO> login(LoginRequest request) {

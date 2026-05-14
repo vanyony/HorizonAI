@@ -1,7 +1,8 @@
 package com.horizonai.ai.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -9,9 +10,10 @@ import org.springframework.web.client.RestTemplate;
 /**
  * AI 模型工厂 — 根据配置创建对应的 AI 客户端
  */
-@Slf4j
 @Component
 public class AiModelFactory {
+
+    private static final Logger log = LoggerFactory.getLogger(AiModelFactory.class);
 
     private final String modelType;
     private final String apiKey;

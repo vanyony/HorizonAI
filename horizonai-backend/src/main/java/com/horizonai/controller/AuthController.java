@@ -6,7 +6,6 @@ import com.horizonai.dto.RegisterRequest;
 import com.horizonai.service.AuthService;
 import com.horizonai.vo.LoginVO;
 import com.horizonai.vo.UserVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,10 +13,15 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/login")
     public Result<LoginVO> login(@Valid @RequestBody LoginRequest request) {

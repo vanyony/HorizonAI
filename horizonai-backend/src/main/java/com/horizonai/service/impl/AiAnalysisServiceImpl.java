@@ -11,23 +11,35 @@ import com.horizonai.mapper.AiAnalysisResultMapper;
 import com.horizonai.mapper.ArticleMapper;
 import com.horizonai.service.AiAnalysisService;
 import com.horizonai.vo.AiAnalysisVO;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class AiAnalysisServiceImpl implements AiAnalysisService {
+
+    private static final Logger log = LoggerFactory.getLogger(AiAnalysisServiceImpl.class);
 
     private final ArticleMapper articleMapper;
     private final AiAnalysisResultMapper aiAnalysisResultMapper;
     private final AnalysisContext analysisContext;
     private final ApplicationEventPublisher eventPublisher;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public AiAnalysisServiceImpl(ArticleMapper articleMapper,
+                                  AiAnalysisResultMapper aiAnalysisResultMapper,
+                                  AnalysisContext analysisContext,
+                                  ApplicationEventPublisher eventPublisher) {
+        this.articleMapper = articleMapper;
+        this.aiAnalysisResultMapper = aiAnalysisResultMapper;
+        this.analysisContext = analysisContext;
+        this.eventPublisher = eventPublisher;
+    }
 
     @Override
     @Transactional

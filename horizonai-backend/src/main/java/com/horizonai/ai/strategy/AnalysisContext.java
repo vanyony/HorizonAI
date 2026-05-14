@@ -5,7 +5,8 @@ import com.horizonai.ai.factory.AiModelFactory;
 import com.horizonai.entity.Article;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -14,9 +15,10 @@ import java.util.Map;
 /**
  * 分析上下文 — 策略模式上下文，根据文章类型选择对应策略
  */
-@Slf4j
 @Component
 public class AnalysisContext {
+
+    private static final Logger log = LoggerFactory.getLogger(AnalysisContext.class);
 
     private final Map<String, AnalysisStrategy> strategyMap = new HashMap<>();
     private final AiModelFactory aiModelFactory;

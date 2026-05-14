@@ -8,7 +8,6 @@ import com.horizonai.mapper.ArticleTagMapper;
 import com.horizonai.mapper.TagMapper;
 import com.horizonai.service.TagService;
 import com.horizonai.vo.TagVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +15,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class TagServiceImpl implements TagService {
 
     private final TagMapper tagMapper;
     private final ArticleTagMapper articleTagMapper;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public TagServiceImpl(TagMapper tagMapper, ArticleTagMapper articleTagMapper) {
+        this.tagMapper = tagMapper;
+        this.articleTagMapper = articleTagMapper;
+    }
 
     @Override
     public List<TagVO> listAll() {

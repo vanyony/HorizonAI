@@ -3,17 +3,21 @@ package com.horizonai.controller;
 import com.horizonai.common.Result;
 import com.horizonai.service.TagService;
 import com.horizonai.vo.TagVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/tags")
-@RequiredArgsConstructor
 public class TagController {
 
     private final TagService tagService;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public TagController(TagService tagService) {
+        this.tagService = tagService;
+    }
 
     @GetMapping
     public Result<List<TagVO>> listAll() {

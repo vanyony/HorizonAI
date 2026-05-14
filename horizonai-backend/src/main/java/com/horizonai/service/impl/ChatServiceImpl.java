@@ -8,18 +8,18 @@ import com.horizonai.entity.ChatHistory;
 import com.horizonai.mapper.ChatHistoryMapper;
 import com.horizonai.service.ChatService;
 import com.horizonai.vo.ChatMessageVO;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
+
+    private static final Logger log = LoggerFactory.getLogger(ChatServiceImpl.class);
 
     private static final String SYSTEM_PROMPT =
             "你是「观澜」，一位专业的技术趋势顾问。你的职责是帮助用户理解互联网技术趋势、"
@@ -32,6 +32,14 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatHistoryMapper chatHistoryMapper;
     private final AiModelFactory aiModelFactory;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public ChatServiceImpl(ChatHistoryMapper chatHistoryMapper,
+                           AiModelFactory aiModelFactory) {
+        this.chatHistoryMapper = chatHistoryMapper;
+        this.aiModelFactory = aiModelFactory;
+    }
 
     @Override
     public ChatMessageVO sendMessage(Long userId, String content) {

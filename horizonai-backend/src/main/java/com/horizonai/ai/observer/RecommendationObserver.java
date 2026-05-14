@@ -1,6 +1,7 @@
 package com.horizonai.ai.observer;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -9,9 +10,10 @@ import org.springframework.stereotype.Component;
  * 推荐刷新观察者 — 当新内容分析完成后刷新推荐状态
  * Phase 4 实现基础版本：记录日志，后续可扩展复杂推荐逻辑
  */
-@Slf4j
 @Component
 public class RecommendationObserver implements ContentObserver {
+
+    private static final Logger log = LoggerFactory.getLogger(RecommendationObserver.class);
 
     @Override
     @Async

@@ -4,7 +4,6 @@ import com.horizonai.common.Result;
 import com.horizonai.dto.ChatSendRequest;
 import com.horizonai.service.ChatService;
 import com.horizonai.vo.ChatMessageVO;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +12,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/chat")
-@RequiredArgsConstructor
 public class ChatController {
 
     private final ChatService chatService;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public ChatController(ChatService chatService) {
+        this.chatService = chatService;
+    }
 
     @PostMapping("/send")
     public Result<ChatMessageVO> send(Authentication authentication,

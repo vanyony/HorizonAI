@@ -5,16 +5,20 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.horizonai.entity.DailyDigest;
 import com.horizonai.mapper.DailyDigestMapper;
 import com.horizonai.service.DailyDigestService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 
 @Service
-@RequiredArgsConstructor
 public class DailyDigestServiceImpl implements DailyDigestService {
 
     private final DailyDigestMapper dailyDigestMapper;
+
+    // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
+
+    public DailyDigestServiceImpl(DailyDigestMapper dailyDigestMapper) {
+        this.dailyDigestMapper = dailyDigestMapper;
+    }
 
     @Override
     public Page<DailyDigest> page(Integer pageNum, Integer pageSize) {
