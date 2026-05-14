@@ -2,13 +2,12 @@ package com.horizonai.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.horizonai.common.Result;
-import com.horizonai.dto.ArticleSaveDTO;
+import com.horizonai.service.AiAnalysisService;
 import com.horizonai.service.ArticleService;
+import com.horizonai.vo.AiAnalysisVO;
 import com.horizonai.vo.ArticleVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/articles")
@@ -16,6 +15,7 @@ import javax.validation.Valid;
 public class ArticleController {
 
     private final ArticleService articleService;
+    private final AiAnalysisService aiAnalysisService;
 
     @GetMapping
     public Result<Page<ArticleVO>> list(
@@ -32,19 +32,9 @@ public class ArticleController {
         return Result.success(articleService.getById(id));
     }
 
-    @PostMapping
-    public Result<ArticleVO> create(@Valid @RequestBody ArticleSaveDTO dto) {
-        return Result.success(articleService.create(dto));
-    }
-
-    @PutMapping("/{id}")
-    public Result<ArticleVO> update(@PathVariable Long id, @Valid @RequestBody ArticleSaveDTO dto) {
-        return Result.success(articleService.update(id, dto));
-    }
-
-    @DeleteMapping("/{id}")
-    public Result<Void> delete(@PathVariable Long id) {
-        articleService.delete(id);
-        return Result.success();
+    @GetMapping("/{id}/analysis")
+    public Result<AiAnalysisVO> getAnalysis(@PathVariable Long id) {
+        AiAnalysisVO analysis = aiAnalysisService.getLatestAnalysis(id);
+        return Result.success(analysis);
     }
 }
