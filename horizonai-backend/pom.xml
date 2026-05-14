@@ -19,7 +19,7 @@
     <description>观澜 - AI技术情报平台后端服务</description>
 
     <properties>
-        <java.version>8</java.version>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>
