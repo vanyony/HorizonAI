@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * 启动时初始化管理员账号和示例数据
@@ -48,13 +49,15 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initAdmin() {
         if (userMapper.selectCount(null) == 0) {
+            String defaultPassword = System.getenv().getOrDefault("HORIZONAI_ADMIN_PASSWORD",
+                UUID.randomUUID().toString().substring(0, 12));
             User admin = new User();
             admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setPassword(passwordEncoder.encode(defaultPassword));
             admin.setEmail("admin@horizonai.com");
             admin.setRole("ADMIN");
             userMapper.insert(admin);
-            log.info("默认管理员已创建: admin / admin123");
+            log.info("默认管理员已创建: admin / {}", defaultPassword);
         }
     }
 

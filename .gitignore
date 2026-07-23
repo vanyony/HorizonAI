@@ -39,3 +39,12 @@ mysql/
 # === AI Interaction Records ===
 # These are deliverables, so track them
 # ai-records/ is intentionally NOT ignored
+
+# === Sensitive Local Files ===
+docs/AI交互记录.md
+.claude/local/
+.claude/settings.local.json
+.env
+.env.local
+.playwright-mcp/
+作业产物不用看/
