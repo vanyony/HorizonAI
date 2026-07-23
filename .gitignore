@@ -42,8 +42,9 @@ mysql/
 
 # === Sensitive Local Files ===
 docs/AI交互记录.md
-.claude/local/
-.claude/settings.local.json
+docs/
+/.claude/
+CLAUDE.md
 .env
 .env.local
 .playwright-mcp/
