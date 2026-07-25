@@ -25,6 +25,10 @@
           <el-icon><DataAnalysis /></el-icon>
           <span>用户兴趣</span>
         </el-menu-item>
+        <el-menu-item index="/admin/pipeline">
+          <el-icon><Connection /></el-icon>
+          <span>内容流水线</span>
+        </el-menu-item>
       </el-menu>
       <div class="aside-footer">
         <el-button text @click="$router.push('/')">
@@ -49,7 +53,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { Document, PriceTag, DataAnalysis, Back } from '@element-plus/icons-vue'
+import { Document, PriceTag, DataAnalysis, Back, Connection } from '@element-plus/icons-vue'
 
 const route = useRoute()
 
@@ -59,7 +63,8 @@ const pageTitle = computed(() => {
   const map = {
     '/admin/articles': '内容管理',
     '/admin/tags': '标签管理',
-    '/admin/users/interests': '用户兴趣总览'
+    '/admin/users/interests': '用户兴趣总览',
+    '/admin/pipeline': '内容流水线'
   }
   return map[route.path] || '管理中心'
 })

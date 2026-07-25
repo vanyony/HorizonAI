@@ -15,4 +15,6 @@ public interface ArticleService {
     ArticleVO update(Long id, ArticleSaveDTO dto);
 
     void delete(Long id);
+
+    boolean existsBySourceUrl(String sourceUrl);
 }
