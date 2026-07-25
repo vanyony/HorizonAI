@@ -39,6 +39,7 @@ public class DeepSeekClient implements AiModelClient {
 
     @Override
     public String chatWithHistory(String systemPrompt, List<AiMessage> messages) {
+        long startedAt = System.nanoTime();
         try {
             List<Map<String, String>> messageList = new ArrayList<>();
 
@@ -72,10 +73,18 @@ public class DeepSeekClient implements AiModelClient {
                     baseUrl + "/chat/completions", request, String.class);
 
             JsonNode root = objectMapper.readTree(response.getBody());
-            return root.path("choices").get(0)
+            String content = root.path("choices").get(0)
                     .path("message").path("content").asText();
+            log.info("外部模型调用完成: service=deepseek, model={}, status={}, durationMs={}",
+                    model,
+                    response.getStatusCodeValue(),
+                    (System.nanoTime() - startedAt) / 1_000_000);
+            return content;
         } catch (Exception e) {
-            log.error("DeepSeek API 调用失败", e);
+            log.error("外部模型调用失败: service=deepseek, model={}, durationMs={}",
+                    model,
+                    (System.nanoTime() - startedAt) / 1_000_000,
+                    e);
             throw new RuntimeException("AI 服务暂时不可用: " + e.getMessage());
         }
     }

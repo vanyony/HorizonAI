@@ -44,6 +44,9 @@ public class SecurityConfig {
             .antMatchers("/api/tags").permitAll()
             // /api/articles 所有子路径放行
             .antMatchers("/api/articles", "/api/articles/**").permitAll()
+            // 健康状态公开，其他 Actuator 端点仅管理员可访问
+            .antMatchers("/actuator/health", "/actuator/health/**").permitAll()
+            .antMatchers("/actuator/**").hasRole("ADMIN")
             // 管理后台需要 ADMIN 角色
             .antMatchers("/api/admin/**").hasRole("ADMIN")
             // 其余接口需要登录

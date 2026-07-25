@@ -20,6 +20,16 @@ public class Article {
 
     private String sourceType;
 
+    private String sourceName;
+
+    private String externalId;
+
+    private String contentHash;
+
+    private LocalDateTime collectedAt;
+
+    private String analysisStatus;
+
     private LocalDate publishDate;
 
     private Integer importanceRating;
@@ -49,6 +59,21 @@ public class Article {
 
     public String getSourceType() { return sourceType; }
     public void setSourceType(String sourceType) { this.sourceType = sourceType; }
+
+    public String getSourceName() { return sourceName; }
+    public void setSourceName(String sourceName) { this.sourceName = sourceName; }
+
+    public String getExternalId() { return externalId; }
+    public void setExternalId(String externalId) { this.externalId = externalId; }
+
+    public String getContentHash() { return contentHash; }
+    public void setContentHash(String contentHash) { this.contentHash = contentHash; }
+
+    public LocalDateTime getCollectedAt() { return collectedAt; }
+    public void setCollectedAt(LocalDateTime collectedAt) { this.collectedAt = collectedAt; }
+
+    public String getAnalysisStatus() { return analysisStatus; }
+    public void setAnalysisStatus(String analysisStatus) { this.analysisStatus = analysisStatus; }
 
     public LocalDate getPublishDate() { return publishDate; }
     public void setPublishDate(LocalDate publishDate) { this.publishDate = publishDate; }

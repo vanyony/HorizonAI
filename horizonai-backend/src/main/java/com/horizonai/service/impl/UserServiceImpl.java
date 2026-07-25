@@ -2,6 +2,7 @@ package com.horizonai.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.horizonai.common.BusinessException;
+import com.horizonai.cache.UserInterestCacheService;
 import com.horizonai.entity.*;
 import com.horizonai.mapper.*;
 import com.horizonai.service.UserService;
@@ -24,6 +25,7 @@ public class UserServiceImpl implements UserService {
     private final BrowseHistoryMapper browseHistoryMapper;
     private final TagMapper tagMapper;
     private final ArticleMapper articleMapper;
+    private final UserInterestCacheService interestCacheService;
 
     // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
 
@@ -31,12 +33,14 @@ public class UserServiceImpl implements UserService {
                            UserInterestMapper userInterestMapper,
                            BrowseHistoryMapper browseHistoryMapper,
                            TagMapper tagMapper,
-                           ArticleMapper articleMapper) {
+                           ArticleMapper articleMapper,
+                           UserInterestCacheService interestCacheService) {
         this.userMapper = userMapper;
         this.userInterestMapper = userInterestMapper;
         this.browseHistoryMapper = browseHistoryMapper;
         this.tagMapper = tagMapper;
         this.articleMapper = articleMapper;
+        this.interestCacheService = interestCacheService;
     }
 
     @Override
@@ -58,11 +62,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<TagVO> getInterests(Long userId) {
-        List<UserInterest> interests = userInterestMapper.selectList(
-                new LambdaQueryWrapper<UserInterest>().eq(UserInterest::getUserId, userId));
-        if (interests.isEmpty()) return new ArrayList<>();
-
-        List<Long> tagIds = interests.stream().map(UserInterest::getTagId).collect(Collectors.toList());
+        List<Long> tagIds = interestCacheService.getTagIds(userId);
+        if (tagIds.isEmpty()) return new ArrayList<>();
         return tagMapper.selectBatchIds(tagIds).stream()
                 .map(t -> new TagVO(t.getId(), t.getName(), t.getDescription(), t.getCreatedAt()))
                 .collect(Collectors.toList());
@@ -81,6 +82,7 @@ public class UserServiceImpl implements UserService {
                 userInterestMapper.insert(interest);
             }
         }
+        interestCacheService.evictUserProfile(userId);
     }
 
     @Override
