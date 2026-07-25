@@ -14,7 +14,7 @@ public class TrendCacheObserver {
         this.trendCacheService = trendCacheService;
     }
 
-    @Async("pipelineTaskExecutor")
+    @Async("pipelineThreadPoolExecutor")
     @EventListener
     public void onContentAnalyzed(ContentEvent event) {
         trendCacheService.recordAnalyzed(event.getArticle());

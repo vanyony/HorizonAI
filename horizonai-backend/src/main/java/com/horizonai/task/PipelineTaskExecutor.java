@@ -28,7 +28,7 @@ public class PipelineTaskExecutor {
         }
     }
 
-    @Async("pipelineTaskExecutor")
+    @Async("pipelineThreadPoolExecutor")
     public void execute(Long taskId) {
         if (!taskManager.claim(taskId)) {
             return;

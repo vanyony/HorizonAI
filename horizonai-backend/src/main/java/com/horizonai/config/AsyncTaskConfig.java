@@ -38,8 +38,8 @@ public class AsyncTaskConfig {
         };
     }
 
-    @Bean(name = "pipelineTaskExecutor")
-    public Executor pipelineTaskExecutor(
+    @Bean(name = "pipelineThreadPoolExecutor")
+    public Executor pipelineThreadPoolExecutor(
             TaskDecorator mdcTaskDecorator,
             @Value("${pipeline.executor.core-pool-size:2}") int corePoolSize,
             @Value("${pipeline.executor.max-pool-size:4}") int maxPoolSize,
