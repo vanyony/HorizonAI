@@ -25,6 +25,10 @@ public class AiAnalysisResult {
 
     private String modelUsed;
 
+    private String promptVersion;
+
+    private String contentHash;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
@@ -56,6 +60,12 @@ public class AiAnalysisResult {
 
     public String getModelUsed() { return modelUsed; }
     public void setModelUsed(String modelUsed) { this.modelUsed = modelUsed; }
+
+    public String getPromptVersion() { return promptVersion; }
+    public void setPromptVersion(String promptVersion) { this.promptVersion = promptVersion; }
+
+    public String getContentHash() { return contentHash; }
+    public void setContentHash(String contentHash) { this.contentHash = contentHash; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

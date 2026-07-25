@@ -2,6 +2,8 @@ package com.horizonai.controller;
 
 import com.horizonai.common.Result;
 import com.horizonai.service.UserService;
+import com.horizonai.service.RecommendationService;
+import com.horizonai.vo.ArticleVO;
 import com.horizonai.vo.BrowseHistoryVO;
 import com.horizonai.vo.TagVO;
 import com.horizonai.vo.UserVO;
@@ -16,11 +18,14 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final RecommendationService recommendationService;
 
     // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService,
+                          RecommendationService recommendationService) {
         this.userService = userService;
+        this.recommendationService = recommendationService;
     }
 
     @GetMapping("/profile")
@@ -63,5 +68,14 @@ public class UserController {
         Long userId = (Long) authentication.getPrincipal();
         userService.recordBrowse(userId, articleId);
         return Result.success();
+    }
+
+    @GetMapping("/recommendations")
+    public Result<List<ArticleVO>> recommendations(
+            Authentication authentication,
+            @RequestParam(defaultValue = "10") int limit) {
+        Long userId = (Long) authentication.getPrincipal();
+        int safeLimit = Math.max(1, Math.min(limit, 20));
+        return Result.success(recommendationService.recommend(userId, safeLimit));
     }
 }

@@ -1,51 +1,37 @@
-# Gitignore for HorizonAI
-
-# === Java / Spring Boot ===
+# Java / Spring Boot
 target/
-!.mvn/wrapper/maven-wrapper.jar
 *.class
 *.jar
 *.war
 *.log
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node.js / Vue
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Environment and local configuration
+.env
+.env.*
+!.env.example
+application-local.yml
+application-local.properties
+
+# IDE and editor
 .idea/
-*.iml
+.vscode/
 .settings/
+*.iml
 .project
 .classpath
-.vscode/
 *.swp
 *.swo
 
-# === Node / Vue ===
-node_modules/
-dist/
-.env.local
-.env.*.local
-*.tsbuildinfo
-
-# === OS ===
+# Operating system
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# === Environment ===
-.env
-application-local.yml
-application-local.properties
-
-# === MySQL ===
+# Local database runtime
 mysql/
-
-# === AI Interaction Records ===
-# These are deliverables, so track them
-# ai-records/ is intentionally NOT ignored
-
-# === Sensitive Local Files ===
-docs/AI交互记录.md
-docs/
-/.claude/
-CLAUDE.md
-.env
-.env.local
-.playwright-mcp/
-作业产物不用看/

@@ -18,7 +18,7 @@
         >
           <el-menu-item index="/">首页</el-menu-item>
           <el-menu-item index="/trends">技术趋势</el-menu-item>
-          <el-menu-item index="/chat">AI 对话</el-menu-item>
+          <el-menu-item index="/chat">研究助手</el-menu-item>
         </el-menu>
       </div>
       <div class="header-right">

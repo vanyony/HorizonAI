@@ -11,11 +11,12 @@ import com.horizonai.mapper.AiAnalysisResultMapper;
 import com.horizonai.mapper.ArticleMapper;
 import com.horizonai.service.AiAnalysisService;
 import com.horizonai.vo.AiAnalysisVO;
+import com.horizonai.cache.TrendCacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -28,51 +29,66 @@ public class AiAnalysisServiceImpl implements AiAnalysisService {
     private final AiAnalysisResultMapper aiAnalysisResultMapper;
     private final AnalysisContext analysisContext;
     private final ApplicationEventPublisher eventPublisher;
+    private final AiAnalysisPersistenceService persistenceService;
+    private final String model;
+    private final String promptVersion;
+    private final TrendCacheService trendCacheService;
 
     // ========== 手动构造器（替代 Lombok @RequiredArgsConstructor） ==========
 
     public AiAnalysisServiceImpl(ArticleMapper articleMapper,
                                   AiAnalysisResultMapper aiAnalysisResultMapper,
                                   AnalysisContext analysisContext,
-                                  ApplicationEventPublisher eventPublisher) {
+                                  ApplicationEventPublisher eventPublisher,
+                                  AiAnalysisPersistenceService persistenceService,
+                                  @Value("${ai.deepseek.model:deepseek-chat}") String model,
+                                  @Value("${ai.analysis.prompt-version:v1}") String promptVersion,
+                                  TrendCacheService trendCacheService) {
         this.articleMapper = articleMapper;
         this.aiAnalysisResultMapper = aiAnalysisResultMapper;
         this.analysisContext = analysisContext;
         this.eventPublisher = eventPublisher;
+        this.persistenceService = persistenceService;
+        this.model = model;
+        this.promptVersion = promptVersion;
+        this.trendCacheService = trendCacheService;
     }
 
     @Override
-    @Transactional
     public AiAnalysisVO analyzeArticle(Long articleId) {
         Article article = articleMapper.selectById(articleId);
         if (article == null) {
             throw new BusinessException("文章不存在");
         }
 
-        // 执行 AI 分析（工厂 + 策略模式协作）
-        AnalysisResult result = analysisContext.analyze(article);
+        AiAnalysisResult existing = persistenceService.findExisting(
+                articleId,
+                article.getContentHash(),
+                model,
+                promptVersion
+        );
+        if (existing != null) {
+            log.info("分析结果已存在，直接复用: articleId={}, contentHash={}, promptVersion={}",
+                    articleId, article.getContentHash(), promptVersion);
+            return buildVO(existing, article.getTitle());
+        }
 
-        // 保存分析结果
-        AiAnalysisResult entity = new AiAnalysisResult();
-        entity.setArticleId(articleId);
-        entity.setImportanceRating(result.getImportanceRating());
-        entity.setTargetAudience(result.getTargetAudience());
-        entity.setIndustryImpact(result.getIndustryImpact());
-        entity.setLearningSuggestions(result.getLearningSuggestions());
-        entity.setSummary(result.getSummary());
-        entity.setRawResponse(result.getRawResponse());
-        entity.setModelUsed("deepseek-chat");
-        aiAnalysisResultMapper.insert(entity);
-
-        // 更新文章重要度评分
-        article.setImportanceRating(result.getImportanceRating());
-        article.setSummary(result.getSummary());
-        articleMapper.updateById(article);
-
-        // 发布内容分析完成事件（观察者模式）
-        eventPublisher.publishEvent(new ContentEvent(this, article, entity));
-
-        return buildVO(entity, article.getTitle());
+        persistenceService.markStatus(articleId, "RUNNING");
+        try {
+            // 外部模型调用不占用数据库事务。
+            AnalysisResult result = analysisContext.analyze(article);
+            AiAnalysisResult entity = persistenceService.saveSuccess(
+                    article,
+                    result,
+                    model,
+                    promptVersion
+            );
+            eventPublisher.publishEvent(new ContentEvent(this, article, entity));
+            return buildVO(entity, article.getTitle());
+        } catch (RuntimeException e) {
+            persistenceService.markStatus(articleId, "FAILED");
+            throw e;
+        }
     }
 
     @Override
@@ -92,12 +108,9 @@ public class AiAnalysisServiceImpl implements AiAnalysisService {
     @Override
     public Object getTodayOverview() {
         // 获取最新的 10 篇文章（按重要度排序）
-        List<Article> articles = articleMapper.selectList(
-                new LambdaQueryWrapper<Article>()
-                        .orderByDesc(Article::getImportanceRating)
-                        .orderByDesc(Article::getCreatedAt)
-                        .last("LIMIT 10")
-        );
+        List<Long> articleIds = trendCacheService.topArticleIds(
+                java.time.LocalDate.now(), 10);
+        List<Article> articles = trendCacheService.orderedArticles(articleIds);
 
         List<Map<String, Object>> items = new ArrayList<>();
         for (Article article : articles) {

@@ -12,11 +12,12 @@ const DigestArchiveView = () => import('@/views/homepage/DigestArchiveView.vue')
 const TrendListView = () => import('@/views/trend/TrendListView.vue')
 const TrendDetailView = () => import('@/views/trend/TrendDetailView.vue')
 const TagBrowseView = () => import('@/views/trend/TagBrowseView.vue')
-const ChatView = () => import('@/views/chat/ChatView.vue')
+const ResearchView = () => import('@/views/chat/ResearchView.vue')
 const ProfileView = () => import('@/views/user/ProfileView.vue')
 const InterestView = () => import('@/views/user/InterestView.vue')
 const ArticleManageView = () => import('@/views/admin/ArticleManageView.vue')
 const UserInterestView = () => import('@/views/admin/UserInterestView.vue')
+const PipelineTaskView = () => import('@/views/admin/PipelineTaskView.vue')
 
 const routes = [
   {
@@ -68,8 +69,8 @@ const routes = [
       {
         path: 'chat',
         name: 'Chat',
-        component: ChatView,
-        meta: { title: 'AI 对话', requiresAuth: true }
+        component: ResearchView,
+        meta: { title: '研究助手', requiresAuth: true }
       },
       {
         path: 'profile',
@@ -101,6 +102,12 @@ const routes = [
         name: 'AdminTags',
         component: ArticleManageView,  // 暂时复用，后续替换
         meta: { title: '标签管理', requiresAuth: true, requiresAdmin: true }
+      },
+      {
+        path: 'pipeline',
+        name: 'AdminPipeline',
+        component: PipelineTaskView,
+        meta: { title: '内容流水线', requiresAuth: true, requiresAdmin: true }
       },
       {
         path: 'users/interests',

@@ -136,6 +136,17 @@ public class ArticleServiceImpl implements ArticleService {
         articleMapper.deleteById(id);
     }
 
+    @Override
+    public boolean existsBySourceUrl(String sourceUrl) {
+        if (!StringUtils.hasText(sourceUrl)) {
+            return false;
+        }
+        return articleMapper.selectCount(
+                new LambdaQueryWrapper<Article>()
+                        .eq(Article::getSourceUrl, sourceUrl)
+        ) > 0;
+    }
+
     private void saveTags(Long articleId, List<Long> tagIds) {
         if (tagIds != null && !tagIds.isEmpty()) {
             for (Long tagId : tagIds) {
