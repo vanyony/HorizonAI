@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 /**
  * 启动时初始化管理员账号和示例数据
@@ -49,15 +48,18 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initAdmin() {
         if (userMapper.selectCount(null) == 0) {
-            String defaultPassword = System.getenv().getOrDefault("HORIZONAI_ADMIN_PASSWORD",
-                UUID.randomUUID().toString().substring(0, 12));
+            String adminPassword = System.getenv("HORIZONAI_ADMIN_PASSWORD");
+            if (adminPassword == null || adminPassword.isBlank()) {
+                throw new IllegalStateException(
+                    "首次启动必须设置 HORIZONAI_ADMIN_PASSWORD，拒绝生成或记录默认管理员密码");
+            }
             User admin = new User();
             admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode(defaultPassword));
+            admin.setPassword(passwordEncoder.encode(adminPassword));
             admin.setEmail("admin@horizonai.com");
             admin.setRole("ADMIN");
             userMapper.insert(admin);
-            log.info("默认管理员已创建: admin / {}", defaultPassword);
+            log.info("默认管理员账号已创建: admin");
         }
     }
 
@@ -69,14 +71,14 @@ public class DataInitializer implements CommandLineRunner {
 
         // 示例文章
         String[][] samples = {
-            {"GPT-5 发布：多模态能力全面升级", "OpenAI 正式发布 GPT-5，支持原生多模态推理，在代码生成和数学推理方面大幅超越前代", "NEWS"},
-            {"Vue 4 正式版发布，性能提升显著", "Vue 4 采用新的响应式引擎，编译时优化使打包体积减小 40%，运行时性能提升 2 倍", "NEWS"},
-            {"Rust 在 Linux 内核中的使用持续扩大", "Linus Torvalds 表示 Rust for Linux 项目进展顺利，更多驱动将用 Rust 编写", "NEWS"},
-            {"kubernetes/kubernetes — 生产级容器编排平台", "Kubernetes 是 CNCF 毕业项目，GitHub 上 Star 数超过 110k，是云原生生态的核心项目", "GITHUB"},
-            {"t3-oss/create-t3-app — 全栈应用脚手架", "T3 Stack 整合 Next.js、tRPC、Prisma 等技术栈，提供类型安全的端到端开发体验", "GITHUB"},
-            {"langgenius/dify — LLM 应用开发平台", "Dify 是开源的大语言模型应用开发平台，支持可视化编排 AI 工作流，已获 50k+ Star", "GITHUB"},
-            {"2026 年 AI Agent 将重塑企业软件架构", "Gartner 预测到 2028 年 60% 的企业应用将内置 AI Agent 能力，从助手模式转向自主决策", "TREND"},
-            {"WebAssembly 走出浏览器，成为服务端新势力", "Wasm 在边缘计算和插件系统中的采用快速增长，Docker 宣布原生支持 Wasm 运行时", "TREND"},
+            {"【示例】大语言模型能力演进讨论", "用于本地演示的模拟资讯：展示模型能力、评估方法与工程集成的讨论。", "NEWS"},
+            {"【示例】前端框架性能优化观察", "用于本地演示的模拟资讯：展示前端构建、响应式渲染与运行时优化主题。", "NEWS"},
+            {"【示例】系统编程语言生态动态", "用于本地演示的模拟资讯：展示系统软件中内存安全与并发编程的技术话题。", "NEWS"},
+            {"【示例】容器编排项目", "用于本地演示的模拟项目条目：展示云原生基础设施内容的采集与推荐。", "GITHUB"},
+            {"【示例】全栈应用脚手架", "用于本地演示的模拟项目条目：展示全栈工程工具链的内容分析。", "GITHUB"},
+            {"【示例】大模型应用平台", "用于本地演示的模拟项目条目：展示 AI 应用开发与工作流编排主题。", "GITHUB"},
+            {"【示例】智能代理对软件架构的影响", "用于本地演示的模拟趋势：展示技术趋势聚合与研究助手引用能力。", "TREND"},
+            {"【示例】WebAssembly 服务端应用", "用于本地演示的模拟趋势：展示边缘计算与扩展机制相关内容。", "TREND"},
         };
 
         for (String[] s : samples) {

@@ -17,5 +17,18 @@ export default defineConfig({
         changeOrigin: true
       }
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined
+          if (id.includes('@element-plus/icons-vue')) return 'element-icons'
+          if (id.includes('element-plus')) return 'element-plus'
+          if (id.includes('vue-router') || id.includes('pinia') || id.includes('/vue/')) return 'vue-vendor'
+          return 'vendor'
+        }
+      }
+    }
   }
 })

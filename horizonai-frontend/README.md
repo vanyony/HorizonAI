@@ -1,5 +1,18 @@
-# Vue 3 + Vite
+# HorizonAI 前端
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+这是 HorizonAI 的 Vue 3 + Vite 前端应用。
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+```bash
+npm install
+npm run dev
+```
+
+开发服务器默认运行在 `http://localhost:5173`，并将 `/api` 请求代理到 `http://localhost:8085`。
+
+生产构建：
+
+```bash
+npm run build
+```
+
+完整的项目说明、环境配置与贡献方式见仓库根目录的 [README](../README.md)。
