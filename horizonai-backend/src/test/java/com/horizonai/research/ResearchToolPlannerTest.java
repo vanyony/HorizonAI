@@ -29,6 +29,25 @@ class ResearchToolPlannerTest {
         assertEquals(List.of("site_search", "github_trend", "interest_match"), tools);
     }
 
+    @Test
+    void missingToolIsSkippedInsteadOfReturningNull() {
+        ResearchToolPlanner limitedPlanner = new ResearchToolPlanner(List.of(
+                tool("site_search"),
+                tool("interest_match")
+        ));
+
+        List<ResearchTool> planned = limitedPlanner.plan("GitHub 开源趋势");
+
+        assertEquals(List.of("site_search", "interest_match"), names(planned));
+    }
+
+    @Test
+    void plannerNeverReturnsMoreThanThreeTools() {
+        List<String> tools = names(planner.plan("GitHub 开源仓库趋势"));
+
+        assertEquals(3, tools.size());
+    }
+
     private ResearchTool tool(String name) {
         return new ResearchTool() {
             @Override
