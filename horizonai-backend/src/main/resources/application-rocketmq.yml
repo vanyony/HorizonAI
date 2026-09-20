@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: rocketmq
+
+pipeline:
+  dispatch-mode: rocketmq
+
+rocketmq:
+  name-server: ${ROCKETMQ_NAME_SERVER:localhost:9876}
+  producer:
+    group: horizonai-pipeline-producer
+    send-message-timeout: 5000

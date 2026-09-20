@@ -117,17 +117,7 @@ public class PipelineTaskManager {
     }
 
     public List<PipelineTask> findDispatchable(int limit) {
-        LocalDateTime now = LocalDateTime.now();
-        return pipelineTaskMapper.selectList(
-                new LambdaQueryWrapper<PipelineTask>()
-                        .and(wrapper -> wrapper
-                                .eq(PipelineTask::getStatus, PipelineTaskStatus.PENDING.name())
-                                .or(retry -> retry
-                                        .eq(PipelineTask::getStatus, PipelineTaskStatus.RETRY_WAIT.name())
-                                        .le(PipelineTask::getNextRetryAt, now)))
-                        .orderByAsc(PipelineTask::getCreatedAt)
-                        .last("LIMIT " + Math.max(1, Math.min(limit, 100)))
-        );
+        return pipelineTaskMapper.findRedispatchable(Math.max(1, Math.min(limit, 100)));
     }
 
     public int recoverStaleRunningTasks(LocalDateTime staleBefore) {

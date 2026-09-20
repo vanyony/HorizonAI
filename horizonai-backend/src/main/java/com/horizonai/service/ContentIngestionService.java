@@ -5,13 +5,13 @@ import com.horizonai.collector.CollectedContent;
 import com.horizonai.entity.Article;
 import com.horizonai.entity.ArticleTag;
 import com.horizonai.entity.Tag;
-import com.horizonai.event.ContentIngestedEvent;
 import com.horizonai.mapper.ArticleMapper;
 import com.horizonai.mapper.ArticleTagMapper;
 import com.horizonai.mapper.TagMapper;
 import com.horizonai.util.ContentFingerprint;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.context.ApplicationEventPublisher;
+import com.horizonai.task.PipelineTaskSubmissionService;
+import com.horizonai.task.PipelineTaskType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -30,18 +30,21 @@ public class ContentIngestionService {
     private final ArticleTagMapper articleTagMapper;
     private final TagMapper tagMapper;
     private final ContentFingerprint contentFingerprint;
-    private final ApplicationEventPublisher eventPublisher;
+    private final PipelineTaskSubmissionService taskSubmissionService;
+    private final String promptVersion;
 
     public ContentIngestionService(ArticleMapper articleMapper,
                                    ArticleTagMapper articleTagMapper,
                                    TagMapper tagMapper,
                                    ContentFingerprint contentFingerprint,
-                                   ApplicationEventPublisher eventPublisher) {
+                                   PipelineTaskSubmissionService taskSubmissionService,
+                                   @org.springframework.beans.factory.annotation.Value("${ai.analysis.prompt-version:v1}") String promptVersion) {
         this.articleMapper = articleMapper;
         this.articleTagMapper = articleTagMapper;
         this.tagMapper = tagMapper;
         this.contentFingerprint = contentFingerprint;
-        this.eventPublisher = eventPublisher;
+        this.taskSubmissionService = taskSubmissionService;
+        this.promptVersion = promptVersion;
     }
 
     @Transactional
@@ -95,7 +98,12 @@ public class ContentIngestionService {
         }
 
         saveMatchedTags(article.getId(), collected.getTags());
-        eventPublisher.publishEvent(new ContentIngestedEvent(article.getId(), fingerprint));
+        taskSubmissionService.submit(
+                PipelineTaskType.ANALYZE_ARTICLE,
+                String.valueOf(article.getId()),
+                String.format("article-analysis:%d:%s:%s", article.getId(), fingerprint, promptVersion),
+                "{}"
+        );
         return new IngestionResult(article.getId(), true, "CREATED");
     }
 

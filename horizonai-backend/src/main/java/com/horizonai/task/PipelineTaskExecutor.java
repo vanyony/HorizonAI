@@ -30,6 +30,10 @@ public class PipelineTaskExecutor {
 
     @Async("pipelineThreadPoolExecutor")
     public void execute(Long taskId) {
+        executeNow(taskId);
+    }
+
+    public void executeNow(Long taskId) {
         if (!taskManager.claim(taskId)) {
             return;
         }

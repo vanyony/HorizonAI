@@ -2,7 +2,6 @@ package com.horizonai.service;
 
 import com.horizonai.collector.CollectedContent;
 import com.horizonai.entity.Article;
-import com.horizonai.event.ContentIngestedEvent;
 import com.horizonai.mapper.ArticleMapper;
 import com.horizonai.mapper.ArticleTagMapper;
 import com.horizonai.mapper.TagMapper;
@@ -11,7 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.context.ApplicationEventPublisher;
+import com.horizonai.task.PipelineTaskSubmissionService;
+import com.horizonai.task.PipelineTaskType;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,7 +29,7 @@ class ContentIngestionServiceTest {
     private ArticleMapper articleMapper;
     private ArticleTagMapper articleTagMapper;
     private TagMapper tagMapper;
-    private ApplicationEventPublisher eventPublisher;
+    private PipelineTaskSubmissionService taskSubmissionService;
     private ContentIngestionService service;
 
     @BeforeEach
@@ -37,13 +37,14 @@ class ContentIngestionServiceTest {
         articleMapper = mock(ArticleMapper.class);
         articleTagMapper = mock(ArticleTagMapper.class);
         tagMapper = mock(TagMapper.class);
-        eventPublisher = mock(ApplicationEventPublisher.class);
+        taskSubmissionService = mock(PipelineTaskSubmissionService.class);
         service = new ContentIngestionService(
                 articleMapper,
                 articleTagMapper,
                 tagMapper,
                 new ContentFingerprint(),
-                eventPublisher
+                taskSubmissionService,
+                "v1"
         );
     }
 
@@ -81,7 +82,7 @@ class ContentIngestionServiceTest {
     }
 
     @Test
-    void createsArticleAndPublishesIngestionEvent() {
+    void createsArticleAndAtomicallySubmitsAnalysisTask() {
         when(articleMapper.selectOne(any())).thenReturn(null, null);
         doAnswer(invocation -> {
             Article inserted = invocation.getArgument(0);
@@ -108,11 +109,12 @@ class ContentIngestionServiceTest {
         assertNotNull(inserted.getContentHash());
         assertEquals("PENDING", inserted.getAnalysisStatus());
 
-        ArgumentCaptor<ContentIngestedEvent> eventCaptor =
-                ArgumentCaptor.forClass(ContentIngestedEvent.class);
-        verify(eventPublisher).publishEvent(eventCaptor.capture());
-        assertEquals(77L, eventCaptor.getValue().getArticleId());
-        assertEquals(inserted.getContentHash(), eventCaptor.getValue().getContentHash());
+        verify(taskSubmissionService).submit(
+                org.mockito.ArgumentMatchers.eq(PipelineTaskType.ANALYZE_ARTICLE),
+                org.mockito.ArgumentMatchers.eq("77"),
+                org.mockito.ArgumentMatchers.eq("article-analysis:77:" + inserted.getContentHash() + ":v1"),
+                org.mockito.ArgumentMatchers.eq("{}")
+        );
     }
 
     @Test

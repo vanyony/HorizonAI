@@ -12,6 +12,8 @@
 
 `DEEPSEEK_API_KEY`、`GITHUB_API_TOKEN` 与 `RSS_FEED_URLS` 为可选能力配置。未配置 AI 凭证时，不要触发依赖模型的分析或周报生成任务。`.env` 已被 Git 忽略，禁止提交任何真实凭证。
 
+流水线默认使用 `PIPELINE_DISPATCH_MODE=local`。切换时设置 `SPRING_PROFILES_ACTIVE=rocketmq`，并配置 `ROCKETMQ_NAME_SERVER`、`PIPELINE_TOPIC` 和 `PIPELINE_CONSUMER_GROUP`。RocketMQ 自动配置只在该 profile 下启用，因此轻量本地模式不要求 Broker 在线。数据库迁移 `006_pipeline_outbox.sql` 必须先执行，否则任务提交会因 Outbox 不存在而整体回滚。
+
 `CORS_ALLOWED_ORIGIN_PATTERNS` 默认仅允许本地前端 `http://localhost:5173`。生产环境必须显式填入实际前端域名，多个域名使用逗号分隔。
 
 ## 数据库
@@ -33,11 +35,21 @@ mysql -u root -p horizonai < horizonai-backend/src/main/resources/sql/data.sql
 
 ## Docker 依赖服务
 
-根目录的 `docker-compose.yml` 只启动 MySQL 与 Redis，应用仍在本机运行。先准备 `.env`，再执行：
+根目录的 `docker-compose.yml` 默认启动 MySQL 与 Redis，应用仍在本机运行。先准备 `.env`，再执行：
 
 ```bash
 docker compose --env-file .env up -d
 docker compose --env-file .env ps
+```
+
+只做轻量本地开发时可以保持默认 profile，即使 RocketMQ 未启动，任务仍通过同一张 Outbox 表可靠交给本地线程池。
+
+验证消息队列链路时，启动 Compose 的 `rocketmq` profile，并显式激活应用 profile（Maven 不会自动读取根目录 `.env`）：
+
+```bash
+docker compose --env-file .env --profile rocketmq up -d
+cd horizonai-backend
+mvn spring-boot:run -Dspring-boot.run.profiles=rocketmq
 ```
 
 停止容器：

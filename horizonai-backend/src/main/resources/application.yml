@@ -7,12 +7,17 @@ external:
     read-timeout: 60s
 
 pipeline:
+  dispatch-mode: ${PIPELINE_DISPATCH_MODE:local} # local | rocketmq
   executor:
     core-pool-size: 2
     max-pool-size: 4
     queue-capacity: 100
   retry-scan-delay: 15000
   github-sync-cron: "0 0 2 * * ?"
+  outbox:
+    relay-delay: 1000
+    batch-size: 50
+    retry-delay: 5s
 
 collector:
   rss:
@@ -71,6 +76,9 @@ github:
   api-token: ${GITHUB_API_TOKEN:}
 
 horizon:
+  messaging:
+    pipeline-topic: ${PIPELINE_TOPIC:horizonai-pipeline-tasks}
+    consumer-group: ${PIPELINE_CONSUMER_GROUP:horizonai-pipeline-consumer}
   security:
     cors:
       allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:5173}

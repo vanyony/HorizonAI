@@ -7,10 +7,10 @@ HorizonAI 将 GitHub、RSS 与本地演示数据接入统一内容流水线，�
 ## 功能概览
 
 - **多源采集与去重**：统一 `ContentCollector` 协议；以来源外部 ID 和规范化内容 SHA-256 双重去重。
-- **可恢复处理流水线**：采集与分析拆为 MySQL 持久化任务，支持幂等提交、失败重试和重启恢复。
+- **可恢复处理流水线**：采集事务同时写入 MySQL 任务与 Outbox；RocketMQ 解耦批量采集和耗时分析，支持幂等消费、失败重试和重启恢复。
 - **AI 分析与推荐**：按内容指纹、模型和 Prompt 版本幂等保存分析结果；Redis 不可用时回退 MySQL。
 - **可追踪研究助手**：白名单工具、调用上限、Evidence 约束和可点击引用；工具调用和 Trace 可回放。
-- **运行可观测性**：`X-Trace-Id` 贯穿 HTTP 与异步任务；提供结构化日志和 Actuator 健康检查。
+- **运行可观测性**：`X-Trace-Id` 贯穿 HTTP 与异步任务；通过 MDC 关联请求日志，并提供 Actuator 健康检查。
 
 ## 架构
 
@@ -19,9 +19,15 @@ GitHub / RSS / Demo
         │
         ▼
  ContentCollector → 标准化与双层去重 → MySQL articles
-                                          │ AFTER_COMMIT
+                                          │ 同一事务
                                           ▼
-                              PipelineTask（持久化任务）
+                         PipelineTask + Transactional Outbox
+                                          │ relay
+                                          ▼
+                                      RocketMQ
+                                          │ taskId
+                                          ▼
+                              条件领取与幂等消费
                                           │
                                           ▼
                               AI 结构化分析与幂等落库
@@ -39,21 +45,27 @@ GitHub / RSS / Demo
 | 层级 | 技术 |
 | --- | --- |
 | 后端 | Java 17、Spring Boot 2.7、Spring Security、MyBatis-Plus |
-| 存储与缓存 | MySQL 8、Redis 6+、Lettuce |
+| 存储与中间件 | MySQL 8、Redis 7、RocketMQ 5、Lettuce |
 | AI | DeepSeek OpenAI-compatible API |
 | 前端 | Vue 3、Vite、Element Plus、Axios |
-| 可观测性 | Actuator、Micrometer、MDC、结构化日志 |
+| 可观测性 | Actuator、Micrometer、MDC 请求关联日志 |
 | 测试 | JUnit 5、Mockito |
 
 ## 快速开始
 
 ### 1. 准备依赖
 
-需要 JDK 17、Maven 3.8+、Node.js 18+、MySQL 8 和 Redis 6+。可用 Docker 仅启动 MySQL 与 Redis：
+需要 JDK 17、Maven 3.8+、Node.js 18+、MySQL 8 和 Redis 7。Docker Compose 默认启动 MySQL 与 Redis：
 
 ```bash
 cp .env.example .env
 docker compose --env-file .env up -d
+```
+
+验证 RocketMQ 链路时额外启用 Compose profile：
+
+```bash
+docker compose --env-file .env --profile rocketmq up -d
 ```
 
 Windows PowerShell 可使用：
@@ -63,7 +75,13 @@ Copy-Item .env.example .env
 docker compose --env-file .env up -d
 ```
 
+```powershell
+docker compose --env-file .env --profile rocketmq up -d
+```
+
 填写 `.env` 中的 `JWT_SECRET` 和 `HORIZONAI_ADMIN_PASSWORD`。如需调用 AI、GitHub 或 RSS，再填写相应凭证；这些值不应提交到版本库。完整配置见[开发文档](docs/development.md)。
+
+默认 `PIPELINE_DISPATCH_MODE=local`，Outbox relay 会把任务交给本地受控线程池。要验证真实消息链路，设置 `SPRING_PROFILES_ACTIVE=rocketmq` 并保持 `ROCKETMQ_NAME_SERVER=localhost:9876`；两种模式共用同一套 Outbox、条件领取和任务状态机。
 
 ### 2. 初始化数据库
 
@@ -81,6 +99,8 @@ mysql -u root -p horizonai < horizonai-backend/src/main/resources/sql/data.sql
 ```bash
 cd horizonai-backend
 mvn spring-boot:run
+# RocketMQ 模式；Maven 不会自动读取根目录 .env 中的应用变量
+mvn spring-boot:run -Dspring-boot.run.profiles=rocketmq
 ```
 
 ```bash
@@ -123,7 +143,7 @@ cd horizonai-backend && mvn test
 cd horizonai-frontend && npm run build
 ```
 
-现有测试覆盖内容指纹稳定性、任务幂等初始化与研究工具白名单规划。后续测试计划见 [Roadmap](docs/roadmap.md)。
+现有测试覆盖内容指纹稳定性、任务幂等、Outbox 发布失败恢复与研究工具白名单规划。后续测试计划见 [Roadmap](docs/roadmap.md)。
 
 ## 文档与参与
 
