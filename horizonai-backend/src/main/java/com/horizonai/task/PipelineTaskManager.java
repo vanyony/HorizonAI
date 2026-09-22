@@ -75,9 +75,10 @@ public class PipelineTaskManager {
                         .set(PipelineTask::getErrorMessage, null)
                         .setSql("attempt = attempt + 1")
                         .eq(PipelineTask::getId, taskId)
-                        .in(PipelineTask::getStatus,
+                        .apply("(status = {0} OR (status = {1} AND next_retry_at <= {2}))",
                                 PipelineTaskStatus.PENDING.name(),
-                                PipelineTaskStatus.RETRY_WAIT.name())
+                                PipelineTaskStatus.RETRY_WAIT.name(),
+                                now)
         ) == 1;
     }
 

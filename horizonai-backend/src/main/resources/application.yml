@@ -7,7 +7,7 @@ external:
     read-timeout: 60s
 
 pipeline:
-  dispatch-mode: ${PIPELINE_DISPATCH_MODE:local} # local | rocketmq
+  dispatch-mode: ${PIPELINE_DISPATCH_MODE:rocketmq} # rocketmq | local
   executor:
     core-pool-size: 2
     max-pool-size: 4
@@ -24,6 +24,8 @@ collector:
     urls: ${RSS_FEED_URLS:}
 
 spring:
+  profiles:
+    default: rocketmq
   application:
     name: horizonai-backend
   datasource:

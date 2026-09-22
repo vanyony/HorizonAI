@@ -4,7 +4,7 @@
 
 采集端通过 `ContentCollector` 适配 GitHub、RSS 和 `DEMO` 数据源。内容先标准化，再用 `(source_name, external_id)` 与 `content_hash` 双重约束去重。文章、`PipelineTask` 与 `pipeline_outbox` 在同一数据库事务中写入，避免文章已提交但分析任务或消息丢失。
 
-Outbox relay 先用条件更新将事件从 `PENDING` 领取为 `PUBLISHING`，再发布只包含 `taskId` 的消息；成功记录发布时间，失败则记录次数与错误并延迟重试。`local` 模式发布到本地线程池，`rocketmq` 模式发布到 RocketMQ，业务提交路径不依赖 Broker 可用性。
+Outbox relay 先用条件更新将事件从 `PENDING` 领取为 `PUBLISHING`，再发布只包含 `taskId` 的消息；成功记录发布时间，失败则记录次数与错误并延迟重试。默认发布到 RocketMQ；显式切换 `local` 模式时发布到本地线程池，业务提交路径不依赖 Broker 可用性。
 
 RocketMQ consumer 根据 `taskId` 条件领取任务，只有 `PENDING / RETRY_WAIT → RUNNING` 更新成功的实例才能执行，因此重复投递不会重复处理。消息系统只负责通知、削峰和分发；业务执行失败由 `pipeline_tasks` 记录并计算退避时间，consumer 正常 ACK，待业务重试到期后再生成一次 Outbox 投递。这样不会把 MQ 重试与业务状态机重试叠加。
 

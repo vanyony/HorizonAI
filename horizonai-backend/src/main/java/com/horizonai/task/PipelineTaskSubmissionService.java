@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -24,8 +25,7 @@ public class PipelineTaskSubmissionService {
                                String idempotencyKey, String payloadJson) {
         PipelineTask task = taskManager.create(currentOrNewTraceId(), taskType, bizKey,
                 idempotencyKey, payloadJson, 3);
-        if (PipelineTaskStatus.PENDING.name().equals(task.getStatus())
-                || PipelineTaskStatus.RETRY_WAIT.name().equals(task.getStatus())) {
+        if (isReadyForSubmission(task, LocalDateTime.now())) {
             outboxManager.enqueue(task.getId());
         }
         return task;
@@ -33,7 +33,19 @@ public class PipelineTaskSubmissionService {
 
     @Transactional
     public void signal(Long taskId) {
-        outboxManager.enqueue(taskId);
+        PipelineTask task = taskManager.getRequired(taskId);
+        if (isReadyForSubmission(task, LocalDateTime.now())) {
+            outboxManager.enqueue(taskId);
+        }
+    }
+
+    private boolean isReadyForSubmission(PipelineTask task, LocalDateTime now) {
+        if (PipelineTaskStatus.PENDING.name().equals(task.getStatus())) {
+            return true;
+        }
+        return PipelineTaskStatus.RETRY_WAIT.name().equals(task.getStatus())
+                && task.getNextRetryAt() != null
+                && !task.getNextRetryAt().isAfter(now);
     }
 
     private String currentOrNewTraceId() {

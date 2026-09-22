@@ -132,7 +132,7 @@ class PipelineTaskManagerTest {
     }
 
     @Test
-    void claimReportsWhetherPendingOrRetryTaskWasClaimed() {
+    void claimKeepsPendingAndRetryDeadlineInAtomicPredicate() {
         PipelineTaskMapper mapper = mock(PipelineTaskMapper.class);
         when(mapper.update(isNull(), any())).thenReturn(1, 0);
         PipelineTaskManager manager = new PipelineTaskManager(mapper);
@@ -142,8 +142,17 @@ class PipelineTaskManagerTest {
         ArgumentCaptor<LambdaUpdateWrapper<PipelineTask>> wrapperCaptor =
                 ArgumentCaptor.forClass(LambdaUpdateWrapper.class);
         verify(mapper, org.mockito.Mockito.times(2)).update(isNull(), wrapperCaptor.capture());
-        assertTrue(wrapperCaptor.getAllValues().get(0).getParamNameValuePairs()
-                .containsValue(PipelineTaskStatus.RUNNING.name()));
+        LambdaUpdateWrapper<PipelineTask> wrapper = wrapperCaptor.getAllValues().get(0);
+        String claimSql = wrapper.getSqlSegment();
+        assertAll(
+                () -> assertTrue(wrapper.getParamNameValuePairs()
+                        .containsValue(PipelineTaskStatus.RUNNING.name())),
+                () -> assertTrue(wrapper.getParamNameValuePairs()
+                        .containsValue(PipelineTaskStatus.PENDING.name())),
+                () -> assertTrue(wrapper.getParamNameValuePairs()
+                        .containsValue(PipelineTaskStatus.RETRY_WAIT.name())),
+                () -> assertTrue(claimSql.contains("next_retry_at <="))
+        );
     }
 
     @Test

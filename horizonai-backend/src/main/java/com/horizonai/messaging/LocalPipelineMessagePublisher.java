@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnProperty(name = "pipeline.dispatch-mode", havingValue = "local", matchIfMissing = true)
+@ConditionalOnProperty(name = "pipeline.dispatch-mode", havingValue = "local")
 public class LocalPipelineMessagePublisher implements PipelineMessagePublisher {
     private final PipelineTaskExecutor taskExecutor;
 

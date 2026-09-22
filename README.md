@@ -55,17 +55,11 @@ GitHub / RSS / Demo
 
 ### 1. 准备依赖
 
-需要 JDK 17、Maven 3.8+、Node.js 18+、MySQL 8 和 Redis 7。Docker Compose 默认启动 MySQL 与 Redis：
+需要 JDK 17、Maven 3.8+、Node.js 18+、MySQL 8、Redis 7 和 RocketMQ。Docker Compose 默认启动这些依赖：
 
 ```bash
 cp .env.example .env
 docker compose --env-file .env up -d
-```
-
-验证 RocketMQ 链路时额外启用 Compose profile：
-
-```bash
-docker compose --env-file .env --profile rocketmq up -d
 ```
 
 Windows PowerShell 可使用：
@@ -75,13 +69,9 @@ Copy-Item .env.example .env
 docker compose --env-file .env up -d
 ```
 
-```powershell
-docker compose --env-file .env --profile rocketmq up -d
-```
-
 填写 `.env` 中的 `JWT_SECRET` 和 `HORIZONAI_ADMIN_PASSWORD`。如需调用 AI、GitHub 或 RSS，再填写相应凭证；这些值不应提交到版本库。完整配置见[开发文档](docs/development.md)。
 
-默认 `PIPELINE_DISPATCH_MODE=local`，Outbox relay 会把任务交给本地受控线程池。要验证真实消息链路，设置 `SPRING_PROFILES_ACTIVE=rocketmq` 并保持 `ROCKETMQ_NAME_SERVER=localhost:9876`；两种模式共用同一套 Outbox、条件领取和任务状态机。
+默认启用 RocketMQ：Outbox relay 将任务投递到 Broker，消费者按任务状态条件领取。启动前请确认 NameServer 和 Broker 已运行。轻量本地调试可同时设置 `SPRING_PROFILES_ACTIVE=local` 与 `PIPELINE_DISPATCH_MODE=local`，改用本地线程池；两种模式共用 Outbox 和任务状态机。
 
 ### 2. 初始化数据库
 
@@ -99,8 +89,8 @@ mysql -u root -p horizonai < horizonai-backend/src/main/resources/sql/data.sql
 ```bash
 cd horizonai-backend
 mvn spring-boot:run
-# RocketMQ 模式；Maven 不会自动读取根目录 .env 中的应用变量
-mvn spring-boot:run -Dspring-boot.run.profiles=rocketmq
+# 可选：不连接 RocketMQ 的本地调试
+mvn spring-boot:run -Dspring-boot.run.profiles=local -Dspring-boot.run.arguments=--pipeline.dispatch-mode=local
 ```
 
 ```bash

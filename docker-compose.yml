@@ -30,7 +30,6 @@ services:
 
   rocketmq-nameserver:
     image: apache/rocketmq:5.3.1
-    profiles: ["rocketmq"]
     command: sh mqnamesrv
     ports:
       - "9876:9876"
@@ -39,7 +38,6 @@ services:
 
   rocketmq-broker:
     image: apache/rocketmq:5.3.1
-    profiles: ["rocketmq"]
     command: sh mqbroker -c /home/rocketmq/conf/broker.conf
     depends_on:
       - rocketmq-nameserver
