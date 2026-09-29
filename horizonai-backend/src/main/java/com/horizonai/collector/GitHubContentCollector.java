@@ -29,7 +29,7 @@ public class GitHubContentCollector implements ContentCollector {
 
     @Override
     public List<CollectedContent> collect() {
-        List<Map<String, Object>> repositories = gitHubApiClient.fetchTrendingRepos();
+        List<Map<String, Object>> repositories = gitHubApiClient.fetchPopularRecentRepos();
         List<CollectedContent> result = new ArrayList<>();
 
         for (Map<String, Object> repository : repositories) {

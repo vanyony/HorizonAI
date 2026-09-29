@@ -13,7 +13,7 @@ pipeline:
     max-pool-size: 4
     queue-capacity: 100
   retry-scan-delay: 15000
-  github-sync-cron: "0 0 2 * * ?"
+  content-sync-cron: "0 0 */2 * * ?"
   outbox:
     relay-delay: 1000
     batch-size: 50

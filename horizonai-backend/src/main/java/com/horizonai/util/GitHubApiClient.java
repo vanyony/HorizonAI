@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * GitHub API 客户端 — 用于获取 Trending 项目
+ * GitHub API 客户端 — 用于获取近期热门新项目
  */
 @Component
 public class GitHubApiClient {
@@ -27,15 +27,14 @@ public class GitHubApiClient {
     }
 
     /**
-     * 获取过去 24 小时内最热门的 GitHub 项目
+     * 获取最近 7 天创建、按 Star 数排序的 GitHub 项目
      */
-    public List<Map<String, Object>> fetchTrendingRepos() {
+    public List<Map<String, Object>> fetchPopularRecentRepos() {
         long startedAt = System.nanoTime();
-        // 构建查询：过去 1 天创建，星标最多
-        String yesterday = LocalDate.now().minusDays(1).toString();
-        String url = "https://api.github.com/search/repositories?q=created:>" + yesterday + "&sort=stars&order=desc";
+        String since = LocalDate.now().minusDays(7).toString();
+        String url = "https://api.github.com/search/repositories?q=created:>" + since + "&sort=stars&order=desc";
 
-        log.info("正在从 GitHub 拉取 Trending 项目: {}", url);
+        log.info("正在从 GitHub 拉取近期热门新项目: {}", url);
 
         try {
             HttpHeaders headers = new HttpHeaders();

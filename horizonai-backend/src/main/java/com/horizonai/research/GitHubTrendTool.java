@@ -23,7 +23,7 @@ public class GitHubTrendTool implements ResearchTool {
 
     @Override
     public List<Evidence> execute(ResearchToolContext context) {
-        return gitHubApiClient.fetchTrendingRepos().stream()
+        return gitHubApiClient.fetchPopularRecentRepos().stream()
                 .limit(context.getMaxResults())
                 .map(this::toEvidence)
                 .collect(Collectors.toList());
